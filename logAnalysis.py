@@ -33,16 +33,38 @@ class cocLog:
             file.write('<'+ msg.name + '>' + msg.msg)
         file.close()
 
-    def process_filter(self, msgArr, filterName):
-        Name = filterName
-        tmp = []
+    def process_filter(self, msgArr, filter_name = True, filter_keyword = True, filter_command = True):
+        if filter_name:
+            pass
+        if filter_command:
+            pass
+        if filter_keyword:
+            pass
         for msg in msgArr:
             if (msg.name in Name):
                 pass
             else:
                 tmp.append(msg)
         return tmp
-# 筛选判断
+
+    def filter_name(self, msg_name):
+        '''
+        judge a name whether has been include in the filter name list
+        :return: bool
+        '''
+
+    def filter_keyword(self, str):
+        '''
+        try to match the keyword in str, if the str only has the keyword
+        :return: filtered str
+        '''
+
+    def filter_command(self, str):
+        '''
+
+        :param str:
+        :return:
+        '''
 
     def unitTest(self):
         pass
@@ -51,16 +73,6 @@ class aMsg:
     def __init__(self, name = 'NA', msg = 'NA'):
         self.name = name
         self.msg = msg
-
-def creatDict(iniPath):
-    confDict = {}
-    f = open(iniPath, 'r')
-    confs = f.readlines()
-    for conf in confs:
-        data = conf.split(':')
-        confDict[data[0]] = int(data[1].rstrip())
-    return confDict
-
 
 if __name__ == '__main__':
     res = cocLog('inputFile.txt')
