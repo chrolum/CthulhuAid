@@ -1,10 +1,14 @@
 import re
+import sysconfig
 
 class cocLog:
     def __init__(self, inputFilePath):
         self.inputFilePath = inputFilePath
         self.log = self.readLog()
         self.regex = {'nameRegex': r'\:[0-9][0-9] (.*?)\(', 'majorRoleRegex': r'\:(*?)\n'}
+        self.filterGameRole = ['跑团用小号', '系统消息','神北小毯']
+        self.command_flag = ['.', '/']
+        self.keyWord = ['[表情]', '[图片]']
 
     def readLog(self):
         log = []
@@ -27,44 +31,39 @@ class cocLog:
             rawLog.append(aMsg(name[0], msgLine))
         return rawLog
 
-    def resPrinter(self, msgArr, outPutPath): # a aMsg object array
+    def resPrinter(self, msgArr, outPutPath='output.txt'): # a aMsg object array
         file = open(outPutPath, 'w')
         for msg in msgArr:
             file.write('<'+ msg.name + '>' + msg.msg)
         file.close()
 
-    def process_filter(self, msgArr, filter_name = True, filter_keyword = True, filter_command = True):
-        if filter_name:
-            pass
-        if filter_command:
-            pass
-        if filter_keyword:
-            pass
+    def process_filter(self, msgArr): #filter_name = False, filter_keyword = False, filter_command = False
+        tmp = []
         for msg in msgArr:
-            if (msg.name in Name):
+            if self.filter_name(msg.name) or self.filter_command(msg.msg):
                 pass
             else:
+                msg.msg = self.filter_keyword(msg.msg)
                 tmp.append(msg)
         return tmp
 
     def filter_name(self, msg_name):
-        '''
-        judge a name whether has been include in the filter name list
-        :return: bool
-        '''
-
-    def filter_keyword(self, str):
-        '''
-        try to match the keyword in str, if the str only has the keyword
-        :return: filtered str
-        '''
+        if msg_name in self.filterGameRole:
+            return True
+        else:
+            return False
+    def filter_keyword(self, rawStr):
+        str = rawStr
+        for keyword in self.keyWord:
+            str = str.replace(keyword, '')
+        return str
 
     def filter_command(self, str):
-        '''
-
-        :param str:
-        :return:
-        '''
+        command_flag = ['.', '/']
+        if str[0] in command_flag:
+            return True
+        else:
+            return False
 
     def unitTest(self):
         pass
@@ -75,8 +74,7 @@ class aMsg:
         self.msg = msg
 
 if __name__ == '__main__':
-    res = cocLog('inputFile.txt')
-    raw = res.process_RawLog()
-    filterName = ['系统消息', '跑团用小号']
-    name_filter = res.process_filter(raw, filterName)
-    res.resPrinter(name_filter, 'raw.txt')
+    log = cocLog('inputFile.txt')
+    raw = log.process_RawLog()
+    res = log.process_filter(raw)
+    log.resPrinter(res, 'raw.txt')
