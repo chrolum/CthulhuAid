@@ -1,7 +1,10 @@
 import re
-import sysconfig
+import configparser
+'''
+1. sperate the filter fuction from cocLog class and make a new class filter
+'''
 
-class cocLog:
+class cocLog(object, MessageFilter):
     def __init__(self, inputFilePath):
         self.inputFilePath = inputFilePath
         self.log = self.readLog()
@@ -52,6 +55,7 @@ class cocLog:
             return True
         else:
             return False
+
     def filter_keyword(self, rawStr):
         str = rawStr
         for keyword in self.keyWord:
@@ -66,12 +70,20 @@ class cocLog:
             return False
 
     def unitTest(self):
-        pass
 
 class aMsg:
     def __init__(self, name = 'NA', msg = 'NA'):
         self.name = name
         self.msg = msg
+
+class MessageFilter:
+    def __init__(self):
+        self.regex = {'nameRegex': r'\:[0-9][0-9] (.*?)\('}
+        self.config = configparser.ConfigParser().read('config.ini')
+
+    def process(self, msgList):# msgList is a message object list
+
+
 
 if __name__ == '__main__':
     log = cocLog('inputFile.txt')
