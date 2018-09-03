@@ -1,5 +1,15 @@
+# -*- coding: utf-8 -*-
 import re
-import sysconfig
+import configparser
+
+"""
+To-do-list:
+1.Configuration: base on a configuration file to control the status of filter function(include name, keyword, command and plot)
+
+2.optimize the process_filter(), make it more fixable ,which should add or delet the filter function more simply
+
+3.compete the unit test(learn how to write a unit test and when should i use it)
+"""
 
 class cocLog:
     def __init__(self, inputFilePath):
@@ -20,7 +30,7 @@ class cocLog:
                     break
                 msg.append(line)
                 for i in range(0,2):
-                    msg.append(f.readline())#msg = [name, msg noValue]
+                    msg.append(f.readline())#msg = [name, msg, noValue]
                 log.append(msg)
         return log
 
@@ -28,22 +38,31 @@ class cocLog:
         rawLog = []
         for nameLine, msgLine, noValueLine in self.log:
             name = re.findall(re.compile(self.regex['nameRegex']), nameLine)
-            rawLog.append(aMsg(name[0], msgLine))
+            rawLog.append(aMsg(name[0], msgLine))#rawLog is a aMsg object list
         return rawLog
 
-    def resPrinter(self, msgArr, outPutPath='output.txt'): # a aMsg object array
+    def resPrinter(self, msgArr, outPutPath='output.txt'): # a aMsg object list
         file = open(outPutPath, 'w')
         for msg in msgArr:
             file.write('<'+ msg.name + '>' + msg.msg)
         file.close()
 
-    def process_filter(self, msgArr): #filter_name = False, filter_keyword = False, filter_command = False
+    def process_filter(self, msgSaveJudage, msgFilter): #two para are the list of func
+        '''
+        this function have two base fuction :
+        1.bool return value to judage the msg weather save
+        2.filter the str with special condition
+        :param msgSaveJudage:
+        :param msgFilter:
+        :return:
+        '''
         tmp = []
         for msg in msgArr:
-            if self.filter_name(msg.name) or self.filter_command(msg.msg):
+            if msgSaveJudage[0](msg) or msgSaveJudage[1](msg) or msgSaveJudage[2](msg):
                 pass
             else:
-                msg.msg = self.filter_keyword(msg.msg)
+                for func in msgFilter:
+                    msg.msg = func(msg.msg)
                 tmp.append(msg)
         return tmp
 
@@ -52,6 +71,7 @@ class cocLog:
             return True
         else:
             return False
+
     def filter_keyword(self, rawStr):
         str = rawStr
         for keyword in self.keyWord:
@@ -59,8 +79,13 @@ class cocLog:
         return str
 
     def filter_command(self, str):
-        command_flag = ['.', '/']
-        if str[0] in command_flag:
+        if str[0] in self.command_flag:# a command is a string that begins with '.' or '/'
+            return True
+        else:
+            return False
+
+    def filter_plot(self, str): #save the msg with flag ':'
+        if str[0] == ':':
             return True
         else:
             return False
@@ -68,10 +93,25 @@ class cocLog:
     def unitTest(self):
         pass
 
+    # def process_conf_filter(self, conf):
+
+    # def readConfiguration(self):
+
+
 class aMsg:
     def __init__(self, name = 'NA', msg = 'NA'):
         self.name = name
         self.msg = msg
+
+class MsgFilter:
+    def __init__(self):
+        self.configuration = self.readConfiguration()
+    def readConfiguration(self):
+        confPath = 'conf.ini'
+        config = configparser.ConfigParser()
+        config.read(confPath)
+    def process_filter(self):
+
 
 if __name__ == '__main__':
     log = cocLog('inputFile.txt')
